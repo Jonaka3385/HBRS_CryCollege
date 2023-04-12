@@ -1,7 +1,7 @@
 from week1.cipher import XORCipher
 from secret import FLAG
 
-key = b"Hurra!"
+key = b'Hurra!'
 cipher = XORCipher(key)
 ciphertext = cipher.encrypt(FLAG)
 print(ciphertext.hex())

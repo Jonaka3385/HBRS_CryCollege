@@ -11,7 +11,7 @@ def send_receive(ip_dst, port_dst, msg):
     :return addr: the address you received the data from
     """
 
-    print(f"Sending message '{msg}' to {ip_dst}:{port_dst}")
+    print(f'Sending message {msg} to {ip_dst}:{port_dst}')
 
     # create a UDP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -22,10 +22,10 @@ def send_receive(ip_dst, port_dst, msg):
     # receive the response from the server
     data, addr = sock.recvfrom(1024)
 
-    print(f"Received message '{data.decode()}' from {addr[0]}:{addr[1]}")
+    print(f'Received message {data.decode()} from {addr[0]}:{addr[1]}')
     return data, addr
 
 
 if __name__ == '__main__':
-    print(send_receive("127.0.0.1", 1337, "Huhu!"))
+    print(send_receive('127.0.0.1', 1337, 'Huhu!'))
     # print(send_receive("hackfest.redrocket.club", 21000, "PING"))
