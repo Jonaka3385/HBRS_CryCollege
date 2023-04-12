@@ -1,8 +1,14 @@
 import pytest
 
 
+alphabet = "abcdefghijklmnopqrstuvwxyz"
+letter_to_index = dict(zip(alphabet, range(len(alphabet))))
+index_to_letter = dict(zip(range(len(alphabet)), alphabet))
+
+
 def xor(a, b):
-    raise NotImplementedError("TODO: Implement me plx")
+    result = bytearray(a_bit ^ b_bit for a_bit, b_bit in zip(a, b))
+    return result
 
 
 class XORCipher:
@@ -17,13 +23,35 @@ class XORCipher:
         """
         Encrypt the data using the Vigenère cipher
         """
-        raise NotImplementedError("TODO: Implement me plx")
+        plaintext = data
+        key = self.key
+        ciphertext = bytearray()
+        key_index = 0
+        for byte in plaintext:
+            key_byte = key[key_index % len(key)]
+            ciphertext_byte = (byte + key_byte) % 256
+            ciphertext.append(ciphertext_byte)
+            key_index += 1
+        return bytes(ciphertext)
 
     def decrypt(self, data):
         """
         Decrypt the data using the Vigenère cipher
         """
-        raise NotImplementedError("TODO: Implement me plx")
+        ciphertext = data
+        key = self.key
+        plaintext = bytearray()
+        key_index = 0
+        for byte in ciphertext:
+            # Get the key for this byte
+            key_byte = key[key_index % len(key)]
+            # Subtract the key from the byte, modulo 256 to get the plaintext byte
+            plaintext_byte = (byte - key_byte) % 256
+            # Add the plaintext byte to the plaintext
+            plaintext.append(plaintext_byte)
+            # Increment the key index
+            key_index += 1
+        return bytes(plaintext)
 
 
 @pytest.fixture
