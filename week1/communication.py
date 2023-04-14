@@ -27,5 +27,5 @@ def send_receive(ip_dst, port_dst, msg):
 
 
 if __name__ == '__main__':
-    print(send_receive('127.0.0.1', 1337, 'Huhu!'))
-    # print(send_receive("hackfest.redrocket.club", 21000, "PING"))
+    # send_receive('127.0.0.1', 1337, 'Huhu!')
+    send_receive("hackfest.redrocket.club", 21000, "PING")
