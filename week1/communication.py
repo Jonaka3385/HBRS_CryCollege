@@ -1,7 +1,7 @@
 import socket
 
 
-def send_receive(ip_dst, port_dst, msg):
+def send_receive(ip_dst, port_dst, msg, maxsize=1024):
     """
     Send one package via udp and receive one package.
     :param ip_dst: ip where to send the data
@@ -20,7 +20,7 @@ def send_receive(ip_dst, port_dst, msg):
     sock.sendto(msg.encode(), (ip_dst, port_dst))
 
     # receive the response from the server
-    data, addr = sock.recvfrom(1024)
+    data, addr = sock.recvfrom(maxsize)
 
     print(f'Received message {data.decode()} from {addr[0]}:{addr[1]}')
     return data, addr
