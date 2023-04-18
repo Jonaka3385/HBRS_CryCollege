@@ -24,31 +24,33 @@ class PrimeField:
         """
         Add two numbers in the field and return the reduced field element.
         """
-        raise NotImplementedError("TODO: Implement me plx")
+        return (a + b) % self.mod
 
     def sub(self, a, b):
         """
         Subtract two numbers in the field and return the reduced field element.
         """
-        raise NotImplementedError("TODO: Implement me plx")
+        return (a - b) % self.mod
 
     def mul(self, a, b):
         """
         Multiply two numbers in the field and return the reduced field element.
         """
-        raise NotImplementedError("TODO: Implement me plx")
+        return (a * b) % self.mod
 
     def div(self, a, b):
         """
         Divide a by b
         """
-        raise NotImplementedError("TODO: Implement me plx")
+        if b == 0:
+            raise ZeroDivisionError('Cannot divide by zero')
+        return self.mul(a, pow(b, self.mod - 2, self.mod)) % self.mod
 
     def equiv(self, a, b):
         """
         Check if two numbers are equivalent in the field.
         """
-        raise NotImplementedError("TODO: Implement me plx")
+        return a % self.mod == b % self.mod
 
     def pow(self, base, exponent):
         """
@@ -60,13 +62,13 @@ class PrimeField:
         if not isinstance(exponent, int):
             raise ValueError("Only integers allowed as exponents.")
         
-        raise NotImplementedError("TODO: Implement me plx")
+        return (base ** exponent) % self.mod
 
     def reduce(self, a):
         """
         Return the smallest representative of number a within the field.
         """
-        raise NotImplementedError("TODO: Implement me plx")
+        return a % self.mod
 
     def __str__(self):
         return f"F_{self.mod}"
@@ -216,10 +218,10 @@ def test_pow(fp_seven):
     assert three * three**-1 == 1
     assert three**3 == F(27)
 
+
 def test_div(fp_seven):
     F, three, four = fp_seven
     assert three/three == 1
     # Element multiplied by its inverse is one
     assert three/5 == 2
     assert F(5)/three == 4
-
