@@ -12,7 +12,7 @@ class WeierstrassCurve(EllipticCurve):
         self.b = self.field(b)
         self.poif = AffinePoint(self, "infinity", "infinity")
         self.singular = (-16 * (4 * self.a ** 3 + 27 * self.b ** 2)) == 0
-        
+
         if generator is not None:
             gen = AffinePoint(self, generator[0], generator[1], generator_order)
             if not self.is_on_curve(gen):
@@ -23,10 +23,10 @@ class WeierstrassCurve(EllipticCurve):
         return AffinePoint(self, x, y, order)
 
     def calc_y_sq(self, x):
-        return x**3 + self.a * x + self.b
+        return x ** 3 + self.a * x + self.b
 
     def is_on_curve(self, point):
-        return point is self.poif or self.calc_y_sq(point.x) == point.y**2
+        return point is self.poif or self.calc_y_sq(point.x) == point.y ** 2
 
     def add(self, P, Q):
         """
@@ -37,12 +37,10 @@ class WeierstrassCurve(EllipticCurve):
             raise ValueError(
                 "Points not on basic_curves {}: {}, {}: {}".format(P, self.is_on_curve(P), Q, self.is_on_curve(Q)))
 
-        raise NotImplementedError("TODO: Implement me plx")
+        raise NotImplementedError()
 
     def __str__(self):
         return "y^2 = x^3 + {}x + {} over {}".format(self.a, self.b, self.field)
-
-
 
 
 def test_tinycurve():
@@ -58,11 +56,11 @@ def test_tinycurve():
 
 def test_NIST_P_256():
     # NIST's Curve P-256
-    p = 2**256 - 2**224 + 2**192 + 2**96 - 1
+    p = 2 ** 256 - 2 ** 224 + 2 ** 192 + 2 ** 96 - 1
     field = PrimeField(p)
     curveP256 = WeierstrassCurve(
-        -3, 
-        41058363725152142129326129780047268409114441015993725554835256314039467401291, 
+        -3,
+        41058363725152142129326129780047268409114441015993725554835256314039467401291,
         field,
         generator=(
             48439561293906451759052585252797914202762949526041747995844080717082404635286,
@@ -75,9 +73,9 @@ def test_NIST_P_256():
     # order with the generator point, we should end up
     # at the neutral element, the point at infinity
     X = curveP256.gen.order * curveP256.gen
-    assert(X is curveP256.poif)
+    assert (X is curveP256.poif)
 
     # Since the point at infinity is the neutral element,
     # with order+1 we should en up at the generator.
     X = (curveP256.gen.order + 1) * curveP256.gen
-    assert(X == curveP256.gen)
+    assert (X == curveP256.gen)

@@ -59,4 +59,4 @@ class EllipticCurve:
         Do scalar multiplication Q = dP using double and add.
         As here: https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add
         """
-        raise NotImplementedError("TODO: Implement me plx")
+        raise NotImplementedError()
