@@ -1,5 +1,7 @@
 from week2.finitefield import FieldElement
 
+from sympy import symbols, Eq, solve
+
 
 class AffinePoint:
 

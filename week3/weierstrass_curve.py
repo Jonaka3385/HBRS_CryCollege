@@ -37,7 +37,7 @@ class WeierstrassCurve(EllipticCurve):
             raise ValueError(
                 "Points not on basic_curves {}: {}, {}: {}".format(P, self.is_on_curve(P), Q, self.is_on_curve(Q)))
 
-        raise NotImplementedError()
+        return EllipticCurve.add(self, P, Q)
 
     def __str__(self):
         return "y^2 = x^3 + {}x + {} over {}".format(self.a, self.b, self.field)
