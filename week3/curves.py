@@ -1,5 +1,5 @@
-from CryCollege.week3.weierstrass_curve import WeierstrassCurve
-from CryCollege.week2.finitefield import PrimeField
+from week3.weierstrass_curve import WeierstrassCurve
+from week2.finitefield import PrimeField
 
 
 # NIST's Curve P-256

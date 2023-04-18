@@ -1,7 +1,7 @@
 import pytest
 
-from CryCollege.week3.elliptic_curve import EllipticCurve, AffinePoint
-from CryCollege.week2.finitefield import PrimeField
+from week3.elliptic_curve import EllipticCurve, AffinePoint
+from week2.finitefield import PrimeField
 
 
 class WeierstrassCurve(EllipticCurve):

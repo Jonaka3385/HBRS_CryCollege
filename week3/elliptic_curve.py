@@ -1,4 +1,4 @@
-from CryCollege.week2.finitefield import FieldElement
+from week2.finitefield import FieldElement
 
 
 class AffinePoint:
