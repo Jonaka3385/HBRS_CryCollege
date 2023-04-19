@@ -42,6 +42,8 @@ class PrimeField:
         """
         Divide a by b
         """
+        if a == b:
+            return 1
         if b == 0:
             raise ZeroDivisionError('Cannot divide by zero')
         return self.mul(a, pow(b, (self.mod - 2), self.mod)) % self.mod

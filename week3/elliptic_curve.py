@@ -1,6 +1,14 @@
 from week2.finitefield import FieldElement
 
-from sympy import symbols, Eq, solve
+
+def inv_mod_p(x, p):
+    """
+    Compute an inverse for x modulo p, assuming that x
+    is not divisible by p.
+    """
+    if x % p == 0:
+        raise ZeroDivisionError("Impossible inverse")
+    return pow(x, p-2, p)
 
 
 class AffinePoint:
@@ -56,9 +64,26 @@ class EllipticCurve:
             scalar = scalar.elem
         return self.double_and_add(point, scalar)
 
+    def add(self, P, Q):
+        l = (Q.y - P.y)/(Q.x - P.x)
+        xr = l**2 - P.x - Q.x
+        yr = l*(P.x - xr) - P.y
+        R = AffinePoint(curve=self, x=xr, y=yr)
+        return R
+
+    def double(self, P):
+        return P + P
+
     def double_and_add(self, point, scalar):
         """
         Do scalar multiplication Q = dP using double and add.
         As here: https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add
         """
-        raise NotImplementedError()
+        if scalar == 0:
+            return 0
+        elif scalar == 1:
+            return point
+        elif scalar % 2 == 1:
+            return self.add(point, self.mul(point, scalar-1))
+        else:
+            return self.mul(self.double(point), scalar/2)
