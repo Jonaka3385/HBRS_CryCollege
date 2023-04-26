@@ -1,6 +1,16 @@
 from week2.finitefield import FieldElement
 
 
+def inv_mod_p(x, p):
+    """
+    Compute an inverse for x modulo p, assuming that x
+    is not divisible by p.
+    """
+    if x % p == 0:
+        raise ZeroDivisionError("Impossible inverse")
+    return pow(x, p-2, p)
+
+
 class AffinePoint:
 
     def __init__(self, curve, x, y, order=None):
@@ -54,9 +64,37 @@ class EllipticCurve:
             scalar = scalar.elem
         return self.double_and_add(point, scalar)
 
+    def double_point(self, point):
+        x = int(point.x.elem)
+        y = int(point.y.elem)
+        A = int(point.curve.a.elem)
+        P = int(point.curve.field.mod)
+        s = (3 * x * x + A) * pow(2 * y, -1, P)
+        xr = (s ** 2 - 2 * x) % P
+        yr = (s * (x - xr) - y) % P
+        R = AffinePoint(curve=point.curve, x=xr, y=yr)
+        return R
+
+    def add_points(self, point1, point2):
+        x1 = int(point1.x.elem)
+        y1 = int(point1.y.elem)
+        x2 = int(point2.x.elem)
+        y2 = int(point2.y.elem)
+        P = int(point1.curve.field.mod)
+        s = ((y2 - y1) * pow(x2 - x1, -1, P)) % P
+        xr = (s ** 2 - x1 - x2) % P
+        yr = (s * (x1 - xr) - y1) % P
+        R = AffinePoint(curve=point1.curve, x=xr, y=yr)
+        return R
+
     def double_and_add(self, point, scalar):
         """
         Do scalar multiplication Q = dP using double and add.
         As here: https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add
         """
-        raise NotImplementedError("TODO: Implement me plx")
+        Q = point
+        for bit in bin(scalar)[3:]:
+            Q = self.double_point(Q)
+            if bit == '1':
+                Q = self.add_points(Q, point)
+        return Q

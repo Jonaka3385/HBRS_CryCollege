@@ -1,6 +1,6 @@
 import pytest
 
-from week3.elliptic_curve import EllipticCurve, AffinePoint
+from week3.oldelliptic_curve import EllipticCurve, AffinePoint
 from week2.finitefield import PrimeField
 
 
@@ -37,7 +37,7 @@ class WeierstrassCurve(EllipticCurve):
             raise ValueError(
                 "Points not on basic_curves {}: {}, {}: {}".format(P, self.is_on_curve(P), Q, self.is_on_curve(Q)))
 
-        return EllipticCurve.add(self, P, Q)
+        raise NotImplementedError("TODO: Implement me plx")
 
     def __str__(self):
         return "y^2 = x^3 + {}x + {} over {}".format(self.a, self.b, self.field)

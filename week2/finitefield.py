@@ -10,6 +10,7 @@ def input_to_element(func):
         elif self.field != arg.field:
             raise ValueError("Elements are in different fields!")
         return func(self, arg)
+
     return cast_wrapper
 
 
@@ -63,7 +64,7 @@ class PrimeField:
             exponent = exponent.elem
         if not isinstance(exponent, int):
             raise ValueError("Only integers allowed as exponents.")
-        
+
         return (base ** exponent) % self.mod
 
     def reduce(self, a):
@@ -215,15 +216,15 @@ def test_mul(fp_seven):
 
 def test_pow(fp_seven):
     F, three, four = fp_seven
-    assert three**4 == four
+    assert three ** 4 == four
     # Element multiplied by its inverse is one
-    assert three * three**-1 == 1
-    assert three**3 == F(27)
+    assert three * three ** -1 == 1
+    assert three ** 3 == F(27)
 
 
 def test_div(fp_seven):
     F, three, four = fp_seven
-    assert three/three == 1
+    assert three / three == 1
     # Element multiplied by its inverse is one
-    assert three/5 == 2
-    assert F(5)/three == 4
+    assert three / 5 == 2
+    assert F(5) / three == 4
