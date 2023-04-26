@@ -40,6 +40,9 @@ class AffinePoint:
 
 class EllipticCurve:
 
+    def __init__(self):
+        self.identity_element = None
+
     def invert(self, point):
         """
         Invert a point.
@@ -54,9 +57,44 @@ class EllipticCurve:
             scalar = scalar.elem
         return self.double_and_add(point, scalar)
 
-    def double_and_add(self, point, scalar):
-        """
-        Do scalar multiplication Q = dP using double and add.
-        As here: https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add
-        """
-        raise NotImplementedError("TODO: Implement me plx")
+    def add(self, P, Q):
+        if P is None:
+            return Q
+        if Q is None:
+            return P
+        px = P.x.elem
+        py = P.y.elem
+        qx = Q.x.elem
+        qy = Q.y.elem
+        p = int(P.curve.field.mod)
+        if px == qx and py != qy:
+            return None
+        if P == Q:
+            return self.double(P)
+        m = (qy - py) * pow(qx - px, -1, p)
+        x = (m * m - px - qx) % p
+        y = (m * (px - x) - py) % p
+        R = AffinePoint(curve=P.curve, x=x, y=y)
+        return R
+
+    def double(self, P):
+        if P is None:
+            return None
+        px = P.x.elem
+        py = P.y.elem
+        a = int(P.curve.a.elem)
+        p = int(P.curve.field.mod)
+        m = (3 * px * px + a) * pow(2 * P[1], -1, p)
+        x = (m * m - 2 * px) % p
+        y = (m * (px - x) - py) % p
+        R = AffinePoint(curve=P.curve, x=x, y=y)
+        return R
+
+    def double_and_add(self, P, scalar):
+        Q = AffinePoint(None, 0, 0)
+        while scalar > 0:
+            if scalar & 1:
+                Q = self.add(Q, P)
+            P = self.double(P)
+            scalar >>= 1
+        return Q

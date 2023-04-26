@@ -1,6 +1,6 @@
 import pytest
 
-from week3.oldelliptic_curve import EllipticCurve, AffinePoint
+from week3.elliptic_curve import EllipticCurve, AffinePoint
 from week2.finitefield import PrimeField
 
 
@@ -29,15 +29,23 @@ class WeierstrassCurve(EllipticCurve):
         return point is self.poif or self.calc_y_sq(point.x) == point.y ** 2
 
     def add(self, P, Q):
-        """
-         Sum of the points P and Q.
-         Rules: https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication
-        """
-        if not (self.is_on_curve(P) and self.is_on_curve(Q)):
-            raise ValueError(
-                "Points not on basic_curves {}: {}, {}: {}".format(P, self.is_on_curve(P), Q, self.is_on_curve(Q)))
+        if P == Q:
+            return self.double(P)
+        if P == self.neg(Q):
+            return None
+        slope = (Q[1] - P[1]) / (Q[0] - P[0])
+        x3 = slope ** 2 - P[0] - Q[0]
+        y3 = slope * (P[0] - x3) - P[1]
+        return x3, y3
 
-        raise NotImplementedError("TODO: Implement me plx")
+    def double(self, P):
+        slope = (3 * P[0] ** 2 + self.a) / (2 * P[1])
+        x3 = slope ** 2 - 2 * P[0]
+        y3 = slope * (P[0] - x3) - P[1]
+        return x3, y3
+
+    def neg(self, P):
+        return P[0], -P[1]
 
     def __str__(self):
         return "y^2 = x^3 + {}x + {} over {}".format(self.a, self.b, self.field)
