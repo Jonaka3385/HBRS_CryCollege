@@ -2,12 +2,8 @@ import socket
 from week1.cipher import XORCipher
 from week3 import curves
 from week3.elliptic_curve import AffinePoint
-import random
 
-rng = random.SystemRandom()
-
-curve, GEN = curves.CurveP256, curves.CurveP256.gen
-
+curve, GEN = curves.CurveP256
 CURVE_COORDINATE_BYTES = 32
 
 # Zieladresse und Port des Servers
@@ -26,16 +22,16 @@ def main():
     # Nachricht an den Server senden
     # Erste 32 Bytes der Nachricht sind x-Koordinate des öffentlichen Schlüssels
     # Letzte 32 Bytes sind y-Koordinate des öffentlichen Schlüssels
-    msg = int(client_public.x % GEN.order).to_bytes(CURVE_COORDINATE_BYTES, "big")
-    msg += int(client_public.y % GEN.order).to_bytes(CURVE_COORDINATE_BYTES, "big")
+    msg = client_public.x.elem.to_bytes(CURVE_COORDINATE_BYTES, "big")
+    msg += client_public.y.elem.to_bytes(CURVE_COORDINATE_BYTES, "big")
     sock.send(msg)
 
     # Antwort des Servers empfangen
-    response = sock.recv(128 + 29)  # 128 Bytes für den öffentlichen Schlüssel, 29 Bytes für den verschlüsselten Flag
+    response = sock.recv(128 + 29) # 128 Bytes für den öffentlichen Schlüssel, 29 Bytes für den verschlüsselten Flag
     server_public_x = int.from_bytes(response[:CURVE_COORDINATE_BYTES], "big")
-    server_public_y = int.from_bytes(response[CURVE_COORDINATE_BYTES:2 * CURVE_COORDINATE_BYTES], "big")
+    server_public_y = int.from_bytes(response[CURVE_COORDINATE_BYTES:2*CURVE_COORDINATE_BYTES], "big")
     server_public = AffinePoint(curve, server_public_x, server_public_y)
-    ciphertext = response[2 * CURVE_COORDINATE_BYTES:]
+    ciphertext = response[2*CURVE_COORDINATE_BYTES:]
 
     # Schlüsselaustausch mit dem Server durchführen
     key = client_private * server_public
@@ -48,13 +44,6 @@ def main():
     # Flag ausgeben
     print(flag)
 
-    # Nachricht entschlüsseln
-    cipher = XORCipher(key)
-    message = cipher.decrypt(ciphertext).decode()
 
-    # Nachricht ausgeben
-    print(message)
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
