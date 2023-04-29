@@ -4,10 +4,9 @@ from week3 import curves
 from week3.elliptic_curve import AffinePoint
 import random
 
-rng = random.SystemRandom()
-
-curve, GEN = curves.CurveP256, curves.CurveP256.gen
-
+GEN = curves.CurveP256.gen
+curve = curves.CurveP256
+rng = random.Random()
 CURVE_COORDINATE_BYTES = 32
 
 # Zieladresse und Port des Servers
@@ -17,7 +16,6 @@ SERVER_ADDRESS = ('hackfest.redrocket.club', 21002)
 def main():
     # Socket erstellen und Verbindung zum Server aufbauen
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.connect(SERVER_ADDRESS)
 
     # Zufälligen privaten Schlüssel und öffentlichen Schlüssel generieren
     client_private = rng.randint(0, GEN.order)
@@ -26,16 +24,16 @@ def main():
     # Nachricht an den Server senden
     # Erste 32 Bytes der Nachricht sind x-Koordinate des öffentlichen Schlüssels
     # Letzte 32 Bytes sind y-Koordinate des öffentlichen Schlüssels
-    msg = int(client_public.x % GEN.order).to_bytes(CURVE_COORDINATE_BYTES, "big")
-    msg += int(client_public.y % GEN.order).to_bytes(CURVE_COORDINATE_BYTES, "big")
-    sock.send(msg)
+    msg = abs(round(client_public.x)).to_bytes(CURVE_COORDINATE_BYTES*2, "big")
+    msg += abs(round(client_public.y)).to_bytes(CURVE_COORDINATE_BYTES*2, "big")
+    sock.sendto(msg, SERVER_ADDRESS)
 
     # Antwort des Servers empfangen
-    response = sock.recv(128 + 29)  # 128 Bytes für den öffentlichen Schlüssel, 29 Bytes für den verschlüsselten Flag
+    response, server_address = sock.recvfrom(128 + 29) # 128 Bytes für den öffentlichen Schlüssel, 29 Bytes für den verschlüsselten Flag
     server_public_x = int.from_bytes(response[:CURVE_COORDINATE_BYTES], "big")
-    server_public_y = int.from_bytes(response[CURVE_COORDINATE_BYTES:2 * CURVE_COORDINATE_BYTES], "big")
+    server_public_y = int.from_bytes(response[CURVE_COORDINATE_BYTES:2*CURVE_COORDINATE_BYTES], "big")
     server_public = AffinePoint(curve, server_public_x, server_public_y)
-    ciphertext = response[2 * CURVE_COORDINATE_BYTES:]
+    ciphertext = response[2*CURVE_COORDINATE_BYTES:]
 
     # Schlüsselaustausch mit dem Server durchführen
     key = client_private * server_public
@@ -48,13 +46,6 @@ def main():
     # Flag ausgeben
     print(flag)
 
-    # Nachricht entschlüsseln
-    cipher = XORCipher(key)
-    message = cipher.decrypt(ciphertext).decode()
 
-    # Nachricht ausgeben
-    print(message)
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

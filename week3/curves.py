@@ -27,6 +27,7 @@ n_order = 0xe95e4a5f737059dc60df5991d45029409e60fc09
 h_cofactor = 0x1
 # mögliche andere Reihenfolge: size/field/gen/order/cofactor/a/b
 field = PrimeField(p_field)
+
 CurveBrainpoolP160r1 = WeierstrassCurve(
     a=a,
     b=b,
