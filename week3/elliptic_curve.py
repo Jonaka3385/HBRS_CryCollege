@@ -62,10 +62,25 @@ class EllipticCurve:
             return Q
         if Q is None:
             return P
-        px = P.x.elem
-        py = P.y.elem
-        qx = Q.x.elem
-        qy = Q.y.elem
+
+        # werte
+        if isinstance(P.x, int) or isinstance(P.x, float):
+            px = P.x
+        else:  # for POIF and field elements
+            px = P.x.elem
+        if isinstance(P.y, int) or isinstance(P.y, float):
+            py = P.y
+        else:  # for POIF and field elements
+            py = P.y.elem
+        if isinstance(Q.x, int) or isinstance(Q.x, float):
+            qx = Q.x
+        else:  # for POIF and field elements
+            qx = Q.x.elem
+        if isinstance(Q.y, int) or isinstance(Q.y, float):
+            qy = Q.y
+        else:  # for POIF and field elements
+            qy = Q.y.elem
+
         p = int(P.curve.field.mod)
         if px == qx and py != qy:
             return None
@@ -80,8 +95,17 @@ class EllipticCurve:
     def double(self, P):
         if P is None:
             return None
-        px = P.x.elem
-        py = P.y.elem
+
+        # werte
+        if isinstance(P.x, int) or isinstance(P.x, float):
+            px = P.x
+        else:  # for POIF and field elements
+            px = P.x.elem
+        if isinstance(P.y, int) or isinstance(P.y, float):
+            py = P.y
+        else:  # for POIF and field elements
+            py = P.y.elem
+
         a = int(P.curve.a.elem)
         p = int(P.curve.field.mod)
         m = (3 * px * px + a) * pow(2 * P[1], -1, p)
@@ -91,7 +115,7 @@ class EllipticCurve:
         return R
 
     def double_and_add(self, P, scalar):
-        Q = AffinePoint(None, 0, 0)
+        Q = AffinePoint(curve=P.curve, x=0, y=0)
         while scalar > 0:
             if scalar & 1:
                 Q = self.add(Q, P)

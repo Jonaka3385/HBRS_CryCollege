@@ -7,6 +7,7 @@ from week2.finitefield import PrimeField
 class WeierstrassCurve(EllipticCurve):
 
     def __init__(self, a, b, field, generator=None, generator_order=None):
+        super().__init__()
         self.field = field
         self.a = self.field(a)
         self.b = self.field(b)
@@ -33,19 +34,50 @@ class WeierstrassCurve(EllipticCurve):
             return self.double(P)
         if P == self.neg(Q):
             return None
-        slope = (Q[1] - P[1]) / (Q[0] - P[0])
-        x3 = slope ** 2 - P[0] - Q[0]
-        y3 = slope * (P[0] - x3) - P[1]
-        return x3, y3
+
+        # werte
+        if isinstance(P.x, int) or isinstance(P.x, float):
+            px = P.x
+        else:  # for POIF and field elements
+            px = P.x.elem
+        if isinstance(P.y, int) or isinstance(P.y, float):
+            py = P.y
+        else:  # for POIF and field elements
+            py = P.y.elem
+        if isinstance(Q.x, int) or isinstance(Q.x, float):
+            qx = Q.x
+        else:  # for POIF and field elements
+            qx = Q.x.elem
+        if isinstance(Q.y, int) or isinstance(Q.y, float):
+            qy = Q.y
+        else:  # for POIF and field elements
+            qy = Q.y.elem
+
+        slope = (qy - py) / (qx - px)
+        x3 = slope ** 2 - px - qx
+        y3 = slope * (px - x3) - py
+        R = AffinePoint(curve=P.curve, x=x3, y=y3)
+        return R
 
     def double(self, P):
-        slope = (3 * P[0] ** 2 + self.a) / (2 * P[1])
-        x3 = slope ** 2 - 2 * P[0]
-        y3 = slope * (P[0] - x3) - P[1]
-        return x3, y3
+        # werte
+        if isinstance(P.x, int) or isinstance(P.x, float):
+            px = P.x
+        else:  # for POIF and field elements
+            px = P.x.elem
+        if isinstance(P.y, int) or isinstance(P.y, float):
+            py = P.y
+        else:  # for POIF and field elements
+            py = P.y.elem
+
+        slope = (3 * px ** 2 + self.a) / (2 * py)
+        x3 = slope ** 2 - 2 * px
+        y3 = slope * (px - x3) - py
+        R = AffinePoint(curve=P.curve, x=x3, y=y3)
+        return R
 
     def neg(self, P):
-        return P[0], -P[1]
+        return AffinePoint(curve=P.curve, x=P.x.elem, y=-P.y.elem)
 
     def __str__(self):
         return "y^2 = x^3 + {}x + {} over {}".format(self.a, self.b, self.field)
