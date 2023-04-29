@@ -28,22 +28,9 @@ h_cofactor = 0x1
 # mögliche andere Reihenfolge: size/field/gen/order/cofactor/a/b
 field = PrimeField(p_field)
 CurveBrainpoolP160r1 = WeierstrassCurve(
-    a,
-    b,
-    field,
-    generator=G,
-    generator_order=n
+    a=a,
+    b=b,
+    field=field,
+    generator=G_generator,
+    generator_order=n_order
 )
-
-{
-        'name':      "Brainpool-p160r1",
-        'type':      WEIERSTRASS,
-        'size':      160,
-        'field':     0xe95e4a5f737059dc60dfc7ad95b3d8139515620f,
-        'generator': (0xbed5af16ea3f6a4f62938c4631eb5af7bdbcdbc3,
-                      0x1667cb477a1a8ec338f94741669c976316da6321),
-        'order':     0xe95e4a5f737059dc60df5991d45029409e60fc09,
-        'cofactor':  0x1,
-        'a':         0x340e7be2a280eb74e2be61bada745d97e8f7c300,
-        'b':         0x1e589a8595423412134faa2dbdec95c8d8675e58
-    },
