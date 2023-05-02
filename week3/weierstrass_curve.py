@@ -30,51 +30,19 @@ class WeierstrassCurve(EllipticCurve):
         return point is self.poif or self.calc_y_sq(point.x) == point.y ** 2
 
     def add(self, P, Q):
+        if P == self.poif:
+            return Q
+        if Q == self.poif:
+            return P
+        if Q == self.invert(P):
+            return self.poif
         if P == Q:
-            return self.double(P)
-        if P == self.neg(Q):
-            return None
-
-        # werte
-        if isinstance(P.x, int) or isinstance(P.x, float):
-            px = P.x
-        else:  # for POIF and field elements
-            px = P.x.elem
-        if isinstance(P.y, int) or isinstance(P.y, float):
-            py = P.y
-        else:  # for POIF and field elements
-            py = P.y.elem
-        if isinstance(Q.x, int) or isinstance(Q.x, float):
-            qx = Q.x
-        else:  # for POIF and field elements
-            qx = Q.x.elem
-        if isinstance(Q.y, int) or isinstance(Q.y, float):
-            qy = Q.y
-        else:  # for POIF and field elements
-            qy = Q.y.elem
-
-        slope = (qy - py) / (qx - px)
-        x3 = slope ** 2 - px - qx
-        y3 = slope * (px - x3) - py
-        R = AffinePoint(curve=P.curve, x=x3, y=y3)
-        return R
-
-    def double(self, P):
-        # werte
-        if isinstance(P.x, int) or isinstance(P.x, float):
-            px = P.x
-        else:  # for POIF and field elements
-            px = P.x.elem
-        if isinstance(P.y, int) or isinstance(P.y, float):
-            py = P.y
-        else:  # for POIF and field elements
-            py = P.y.elem
-
-        slope = (3 * px ** 2 + self.a) / (2 * py)
-        x3 = slope ** 2 - 2 * px
-        y3 = slope * (px - x3) - py
-        R = AffinePoint(curve=P.curve, x=x3, y=y3)
-        return R
+            s = (3*(P.x * P.x) + self.a) / (2*P.y)
+        else:
+            s = (P.y - Q.y) / (P.x - Q.x)
+        xr = s**2 - P.x - Q.x
+        yr = s*(P.x - xr) - P.y
+        return AffinePoint(self, xr, yr)
 
     def neg(self, P):
         return AffinePoint(curve=P.curve, x=P.x.elem, y=-P.y.elem)

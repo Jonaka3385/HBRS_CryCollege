@@ -57,68 +57,13 @@ class EllipticCurve:
             scalar = scalar.elem
         return self.double_and_add(point, scalar)
 
-    def add(self, P, Q):
-        if P is None:
-            return Q
-        if Q is None:
-            return P
-
-        # werte
-        if isinstance(P.x, int) or isinstance(P.x, float):
-            px = P.x
-        else:  # for POIF and field elements
-            px = P.x.elem
-        if isinstance(P.y, int) or isinstance(P.y, float):
-            py = P.y
-        else:  # for POIF and field elements
-            py = P.y.elem
-        if isinstance(Q.x, int) or isinstance(Q.x, float):
-            qx = Q.x
-        else:  # for POIF and field elements
-            qx = Q.x.elem
-        if isinstance(Q.y, int) or isinstance(Q.y, float):
-            qy = Q.y
-        else:  # for POIF and field elements
-            qy = Q.y.elem
-
-        p = int(P.curve.field.mod)
-        if px == qx and py != qy:
-            return None
-        if P == Q:
-            return self.double(P)
-        m = (qy - py) * pow(qx - px, -1, p)
-        x = (m * m - px - qx) % p
-        y = (m * (px - x) - py) % p
-        R = AffinePoint(curve=P.curve, x=x, y=y)
-        return R
-
-    def double(self, P):
-        if P is None:
-            return None
-
-        # werte
-        if isinstance(P.x, int) or isinstance(P.x, float):
-            px = P.x
-        else:  # for POIF and field elements
-            px = P.x.elem
-        if isinstance(P.y, int) or isinstance(P.y, float):
-            py = P.y
-        else:  # for POIF and field elements
-            py = P.y.elem
-
-        a = int(P.curve.a.elem)
-        p = int(P.curve.field.mod)
-        m = (3 * px * px + a) * pow(2 * P[1], -1, p)
-        x = (m * m - 2 * px) % p
-        y = (m * (px - x) - py) % p
-        R = AffinePoint(curve=P.curve, x=x, y=y)
-        return R
-
-    def double_and_add(self, P, scalar):
-        Q = AffinePoint(curve=P.curve, x=0, y=0)
-        while scalar > 0:
-            if scalar & 1:
-                Q = self.add(Q, P)
-            P = self.double(P)
-            scalar >>= 1
-        return Q
+    def double_and_add(self, point, scalar):
+        bits = bin(scalar)  # the vector of bits (from LSB to MSB) representing s
+        i = len(bits) - 2
+        res = point
+        while (i >= 0):  # traversing from second MSB to LSB
+            res = res + res  # double
+            if bits[i] == 1:
+                res = res + point  # add
+            i = i - 1
+        return res
