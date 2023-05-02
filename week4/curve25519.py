@@ -148,7 +148,6 @@ class X25519:
         :param pk: public key as affine point (X value)
         :return: shared secret as affine point (X value)
         """
-
         return pk
 
     def exchange(self, pk):
