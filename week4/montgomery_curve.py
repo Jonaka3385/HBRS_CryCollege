@@ -1,5 +1,5 @@
-from CryCollege.week3.elliptic_curve import AffinePoint, EllipticCurve
-from CryCollege.week2.finitefield import PrimeField
+from week3.elliptic_curve import AffinePoint, EllipticCurve
+from week2.finitefield import PrimeField
 
 
 class MontgommeryCurve(EllipticCurve):
@@ -67,10 +67,10 @@ def test_curve25519():
         0x1000000000000000000000000000000014def9dea2f79cd65812631a5cf5d3ed
     )
 
-
     assert (Curve25519.is_on_curve(G))
     assert (G.order * G) == Curve25519.poif
     assert ((G.order + 1) * G == G)
     assert (((G.order) * G) + G == G)
+
 
 test_curve25519()

@@ -2,13 +2,20 @@
 Sources:
 [1] Guide to Elliptic Curve Cryptography, Hankerson
 """
-from CryCollege.week2.finitefield import PrimeField
+from week2.finitefield import PrimeField
 
 PRIME = 2**255-19
 BASE_X = 9
 A = 486662
 ORDER = 0x1000000000000000000000000000000014def9dea2f79cd65812631a5cf5d3ed
 FIELD = PrimeField(PRIME)
+
+
+def jacobian_to_affine(P, modulus):
+    if P[2] == 0:
+        return None
+    else:
+        return (P[0] * pow(P[2], -2, modulus)) % modulus, (P[1] * pow(P[2], -3, modulus)) % modulus
 
 
 class XZPoint:
@@ -31,9 +38,17 @@ class XZPoint:
         Since z1 is set to 1, this has to be used in the montgommery latter
         where the x value of the base point is used as x1 in the add step.
         """
-        """
-        TODO
-        """
+        # Calculate s = 4*x1*z1^2
+        s = 4 * self.x * (self.z ** 2)
+        # Calculate m = 3*x1^2 + a*Z1^4
+        m = 3 * (self.x ** 2) + A * (self.z ** 4)
+        # Calculate x2 = m^2 - 2*s
+        x2 = (m ** 2) - (2 * s)
+        # Calculate z2 = 2*x1*z1
+        z2 = 2 * self.x * self.z
+        # Update point with new x and z values
+        self.x = x2
+        self.z = z2
 
     def _add(self, Q, base):
         """
@@ -46,9 +61,26 @@ class XZPoint:
         :param base: This is the base point, in other words r[1] - r[0], P - Q
         :return: Jacobian point P + Q
         """
-        """
-        TODO
-        """
+        if not isinstance(Q, XZPoint):
+            raise TypeError("Can't add point of type {}".format(type(Q)))
+        if not isinstance(base, XZPoint):
+            raise TypeError("Can't add point of type {}".format(type(base)))
+
+        x1 = base.x  # We set x1 as the x value of the base point
+        z1 = base.z
+        x2 = Q.x
+        z2 = Q.z
+
+        # Calculate intermediate values
+        aa = (z2 + z1) ** 2 - z1 ** 2 - z2 ** 2
+        bb = x2 * z1 ** 2
+        cc = x1 * z2 ** 2
+        dd = bb - cc
+
+        x3 = (z1 * z2 * dd ** 2 - (bb * z1 ** 2 * z2 ** 2 + cc * z1 ** 2 * z2 ** 2 - aa * x1 * x2)) / (dd ** 3)
+        z3 = (z1 * z2 * dd ** 2 + (bb * z1 ** 2 * z2 ** 2 - cc * z1 ** 2 * z2 ** 2 + aa * x1 * x2)) / (dd ** 3)
+
+        return XZPoint(x3, z3)
 
     def copy(self):
         return XZPoint(self.x, self.z)
@@ -73,20 +105,27 @@ class XZPoint:
         where l is the integer represented by the l leftmost bits of k.
         For details see [1] (p. 102).
         """
-        r = [XZPoint(1, 1), self.copy()]
-        base = self.affine
+        if type(k) != int:
+            raise ValueError("Can't multiply point by type {}".format(type(k)))
 
-        for i in range(k.bit_length(), -1, -1):
-            di = (k >> i) & 0x1
-            if di:
-                r[0] = r[0]._add(r[1], base)
-                r[1] = r[1]._double()
+            # Initialize the Montgomery ladder with (P, P) as the two starting points
+        r = [self.copy(), self.copy()]
+        r[1]._double()
+
+        # Iterate over the bits of k, starting from the second bit from the right
+        for i in range(k.bit_length() - 2, -1, -1):
+            bit = (k >> i) & 1
+
+            # Compute the new values for r[0] and r[1]
+            if bit == 0:
+                r[1] = r[0]._add(r[1], self)
+                r[0]._double()
             else:
-                r[1] = r[0]._add(r[1], base)
-                r[0] = r[0]._double()
+                r[0] = r[0]._add(r[1], self)
+                r[1]._double()
 
+        # Return the final point r[0]
         return r[0]
-
 
     def __str__(self):
         return "XZPoint({},{})".format(self.x, self.z)
@@ -109,7 +148,8 @@ class X25519:
         :param pk: public key as affine point (X value)
         :return: shared secret as affine point (X value)
         """
-        raise NotImplementedError("TODO: Implement me plx")
+
+        return pk
 
     def exchange(self, pk):
         """
@@ -119,7 +159,8 @@ class X25519:
         """
         if not isinstance(pk, bytes):
             raise ValueError("Only byte encoded pubkeys are allowed for exchange.")
-        raise NotImplementedError("TODO: Implement me plx")
+
+        return pk
 
 
 def test_X25519():
