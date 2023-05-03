@@ -1,12 +1,11 @@
 import socketserver
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PrivateKey, X25519PublicKey
-from secret import FLAG
 
 
 # Do a full X25519 key-agreement against the following UDP server:
 # (hackfest.redrocket.club,24001)
-
+FLAG = # geheim
 
 class XORCipher:
 
