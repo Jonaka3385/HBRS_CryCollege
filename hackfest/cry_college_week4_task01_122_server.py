@@ -1,9 +1,26 @@
 from week1.communication import send_receive
 from week4.curve25519 import X25519
-from week1.cipher import XORCipher
 
 # Do a full X25519 key-agreement against the following UDP server:
 # (hackfest.redrocket.club,24001)
+
+
+class XORCipher:
+    def __init__(self, key):
+        self.key = key
+
+    def encrypt(self, enData):
+        if not isinstance(enData, bytes):
+            raise ValueError("You can only encrypt bytes")
+        output = bytearray()
+
+        for i in range(len(enData)):
+            output.append(enData[i] ^ self.key[i % len(self.key)])
+
+        return bytes(output)
+
+    def decrypt(self, deData):
+        return self.encrypt(deData)
 
 
 if __name__ == "__main__":

@@ -62,17 +62,6 @@ class XZPoint:
         return XZPoint(X_pq.elem, Z_pq.elem)
 
     def copy(self):
-        xx = 0
-        zz = 0
-        if isinstance(self.x, FieldElement):
-            xx = self.x.elem
-        else:
-            xx = self.x
-        if isinstance(self.z, FieldElement):
-            zz = self.z.elem
-        else:
-            zz = self.z
-
         return XZPoint(self.x, self.z)
 
     def __rmul__(self, k):
@@ -98,24 +87,7 @@ class XZPoint:
         if type(k) != int:
             raise ValueError("Can't multiply point by type {}".format(type(k)))
 
-            # Initialize the Montgomery ladder with (P, P) as the two starting points
-        r = [self.copy(), self.copy()]
-        r[1]._double()
-
-        # Iterate over the bits of k, starting from the second bit from the right
-        for i in range(k.bit_length() - 2, -1, -1):
-            bit = (k >> i) & 1
-
-            # Compute the new values for r[0] and r[1]
-            if bit == 0:
-                r[1] = r[0]._add(r[1], self)
-                r[0]._double()
-            else:
-                r[0] = r[0]._add(r[1], self)
-                r[1]._double()
-
-        # Return the final point r[0]
-        return r[0]
+        return self
 
     def __str__(self):
         return "XZPoint({},{})".format(self.x, self.z)
