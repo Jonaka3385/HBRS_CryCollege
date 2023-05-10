@@ -1,5 +1,3 @@
-import pytest
-
 from week3.elliptic_curve import EllipticCurve, AffinePoint
 from week2.finitefield import PrimeField
 
@@ -11,7 +9,7 @@ class WeierstrassCurve(EllipticCurve):
         self.field = field
         self.a = self.field(a)
         self.b = self.field(b)
-        self.poif = AffinePoint(self, "infinity", "infinity")
+        self.poif = AffinePoint(self, 'infinity', 'infinity')
         self.singular = (-16 * (4 * self.a ** 3 + 27 * self.b ** 2)) == 0
 
         if generator is not None:
@@ -30,18 +28,22 @@ class WeierstrassCurve(EllipticCurve):
         return point is self.poif or self.calc_y_sq(point.x) == point.y ** 2
 
     def add(self, P, Q):
+        if not (self.is_on_curve(P) and self.is_on_curve(Q)):
+            raise ValueError(
+                "Points not on basic<-curves {}: {}, {}: {}".format(P, self.is_on_curve(P), Q, self.is_on_curve(Q)))
+
         if P == self.poif:
             return Q
         if Q == self.poif:
             return P
-        if Q == self.invert(P):
+        if P == self.invert(Q):
             return self.poif
         if P == Q:
-            s = (3*(P.x * P.x) + self.a) / (2*P.y)
+            s = (3 * (P.x ** 2) + self.a) / (2 * P.y)
         else:
             s = (P.y - Q.y) / (P.x - Q.x)
-        xr = s**2 - P.x - Q.x
-        yr = s*(P.x - xr) - P.y
+        xr = s ** 2 - P.x - Q.x
+        yr = Q.y + s * (xr - Q.x)
         return AffinePoint(self, xr, yr)
 
     def neg(self, P):

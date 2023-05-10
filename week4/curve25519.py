@@ -2,7 +2,7 @@
 Sources:
 [1] Guide to Elliptic Curve Cryptography, Hankerson
 """
-from week2.finitefield import PrimeField
+from week2.finitefield import PrimeField, FieldElement
 
 PRIME = 2**255-19
 BASE_X = 9
@@ -22,7 +22,7 @@ class XZPoint:
 
     def __init__(self, x, z=1):
         self.x = FIELD(x)
-        self.z = FIELD(z)
+        self.z = FIELD(x)
 
     @property
     def affine(self):
@@ -38,17 +38,11 @@ class XZPoint:
         Since z1 is set to 1, this has to be used in the montgommery latter
         where the x value of the base point is used as x1 in the add step.
         """
-        # Calculate s = 4*x1*z1^2
-        s = 4 * self.x * (self.z ** 2)
-        # Calculate m = 3*x1^2 + a*Z1^4
-        m = 3 * (self.x ** 2) + A * (self.z ** 4)
-        # Calculate x2 = m^2 - 2*s
-        x2 = (m ** 2) - (2 * s)
-        # Calculate z2 = 2*x1*z1
-        z2 = 2 * self.x * self.z
-        # Update point with new x and z values
-        self.x = x2
-        self.z = z2
+        Xp_Zp = ((self.x + self.z)**2) - ((self.x - self.z)**2)
+        X_2p = ((self.x + self.z)**2) * ((self.x - self.z)**2)
+        Z_2p = Xp_Zp * (((self.x - self.z)**2) + (((A+2)//4) * Xp_Zp))
+
+        return XZPoint(X_2p.elem, Z_2p.elem)
 
     def _add(self, Q, base):
         """
@@ -61,28 +55,24 @@ class XZPoint:
         :param base: This is the base point, in other words r[1] - r[0], P - Q
         :return: Jacobian point P + Q
         """
-        if not isinstance(Q, XZPoint):
-            raise TypeError("Can't add point of type {}".format(type(Q)))
-        if not isinstance(base, XZPoint):
-            raise TypeError("Can't add point of type {}".format(type(base)))
+        basepoint = XZPoint(base)
+        X_pq = basepoint.z * ((self.x - self.z)*(Q.x + Q.z) + (self.x + self.z)*(Q.x - Q.z))**2
+        Z_pq = basepoint.x * ((self.x - self.z)*(Q.x + Q.z) - (self.x + self.z)*(Q.x - Q.z))**2
 
-        x1 = base.x  # We set x1 as the x value of the base point
-        z1 = base.z
-        x2 = Q.x
-        z2 = Q.z
-
-        # Calculate intermediate values
-        aa = (z2 + z1) ** 2 - z1 ** 2 - z2 ** 2
-        bb = x2 * z1 ** 2
-        cc = x1 * z2 ** 2
-        dd = bb - cc
-
-        x3 = (z1 * z2 * dd ** 2 - (bb * z1 ** 2 * z2 ** 2 + cc * z1 ** 2 * z2 ** 2 - aa * x1 * x2)) / (dd ** 3)
-        z3 = (z1 * z2 * dd ** 2 + (bb * z1 ** 2 * z2 ** 2 - cc * z1 ** 2 * z2 ** 2 + aa * x1 * x2)) / (dd ** 3)
-
-        return XZPoint(x3, z3)
+        return XZPoint(X_pq.elem, Z_pq.elem)
 
     def copy(self):
+        xx = 0
+        zz = 0
+        if isinstance(self.x, FieldElement):
+            xx = self.x.elem
+        else:
+            xx = self.x
+        if isinstance(self.z, FieldElement):
+            zz = self.z.elem
+        else:
+            zz = self.z
+
         return XZPoint(self.x, self.z)
 
     def __rmul__(self, k):
@@ -148,7 +138,8 @@ class X25519:
         :param pk: public key as affine point (X value)
         :return: shared secret as affine point (X value)
         """
-        return pk
+        pub_point = XZPoint(pk)
+        return (self.sk * pub_point).affine
 
     def exchange(self, pk):
         """
@@ -159,7 +150,10 @@ class X25519:
         if not isinstance(pk, bytes):
             raise ValueError("Only byte encoded pubkeys are allowed for exchange.")
 
-        return pk
+        pkInt = int.from_bytes(pk, "little")
+        pub_point = XZPoint(pkInt)
+        secret = self.sk * pub_point
+        return secret.affine.to_bytes((secret.affine.elem.bit_length()+7)//8, "little")
 
 
 def test_X25519():

@@ -58,12 +58,17 @@ class EllipticCurve:
         return self.double_and_add(point, scalar)
 
     def double_and_add(self, point, scalar):
+        tmp = point
         bits = bin(scalar)  # the vector of bits (from LSB to MSB) representing s
         i = len(bits) - 2
         res = point
-        while (i >= 0):  # traversing from second MSB to LSB
+        while i >= 0:  # traversing from second MSB to LSB
             res = res + res  # double
             if bits[i] == 1:
                 res = res + point  # add
             i = i - 1
+        if tmp.x == 'infinity':
+            res.x = 'infinity'
+        if tmp.y == 'infinity':
+            res.y = 'infinity'
         return res

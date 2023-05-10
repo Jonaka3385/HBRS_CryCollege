@@ -1,13 +1,19 @@
-import socketserver
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PrivateKey, X25519PublicKey
-from week1 import communication
-
+from week1.communication import send_receive
+from week4.curve25519 import X25519
+from week1.cipher import XORCipher
 
 # Do a full X25519 key-agreement against the following UDP server:
 # (hackfest.redrocket.club,24001)
 
 
 if __name__ == "__main__":
-    HOST, PORT = "hackfest.redrocket.club", 24001
-    communication.send_receive(HOST, PORT, b'')
+    curve = X25519(1234)
+    data = send_receive('hackfest.redrocket.club', 24001, curve.pk_bytes)
+
+    pub_key = data[0][:32]
+    shared_key = curve.exchange(pub_key)
+    cipher = XORCipher(shared_key)
+    encrypted_msg = data[0][32:]
+    decrypted_msg = cipher.decrypt(encrypted_msg)
+
+    print(f"Flag: {decrypted_msg.decode('utf-8')}")
