@@ -65,6 +65,16 @@ class PrimeField:
         if not isinstance(exponent, int):
             raise ValueError("Only integers allowed as exponents.")
 
+        if base == 0:
+            return 0
+
+        if exponent == 0:
+            return base % self.mod
+
+        if exponent < 0:
+            exponent += (-2*exponent)
+            return (1 / (base ** exponent)) % self.mod
+
         return (base ** exponent) % self.mod
 
     def reduce(self, a):

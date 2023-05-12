@@ -2,27 +2,20 @@
 Sources:
 [1] Guide to Elliptic Curve Cryptography, Hankerson
 """
-from week2.finitefield import PrimeField, FieldElement
+from week2.finitefield import PrimeField
 
-PRIME = 2**255-19
+PRIME = 2 ** 255 - 19
 BASE_X = 9
 A = 486662
 ORDER = 0x1000000000000000000000000000000014def9dea2f79cd65812631a5cf5d3ed
 FIELD = PrimeField(PRIME)
 
 
-def jacobian_to_affine(P, modulus):
-    if P[2] == 0:
-        return None
-    else:
-        return (P[0] * pow(P[2], -2, modulus)) % modulus, (P[1] * pow(P[2], -3, modulus)) % modulus
-
-
 class XZPoint:
 
     def __init__(self, x, z=1):
         self.x = FIELD(x)
-        self.z = FIELD(x)
+        self.z = FIELD(z)
 
     @property
     def affine(self):
@@ -30,7 +23,7 @@ class XZPoint:
         Converts the projective coordinates into the affine
         x value.
         """
-        return self.x * self.z**-1
+        return self.x * self.z ** -1
 
     def _double(self):
         """
@@ -38,9 +31,9 @@ class XZPoint:
         Since z1 is set to 1, this has to be used in the montgommery latter
         where the x value of the base point is used as x1 in the add step.
         """
-        Xp_Zp = ((self.x + self.z)**2) - ((self.x - self.z)**2)
-        X_2p = ((self.x + self.z)**2) * ((self.x - self.z)**2)
-        Z_2p = Xp_Zp * (((self.x - self.z)**2) + (((A+2)//4) * Xp_Zp))
+        Xp_Zp = ((self.x + self.z) ** 2) - ((self.x - self.z) ** 2)
+        X_2p = ((self.x + self.z) ** 2) * ((self.x - self.z) ** 2)
+        Z_2p = Xp_Zp * (((self.x - self.z) ** 2) + (((A + 2) // 4) * Xp_Zp))
 
         return XZPoint(X_2p.elem, Z_2p.elem)
 
@@ -56,8 +49,8 @@ class XZPoint:
         :return: Jacobian point P + Q
         """
         basepoint = XZPoint(base)
-        X_pq = basepoint.z * ((self.x - self.z)*(Q.x + Q.z) + (self.x + self.z)*(Q.x - Q.z))**2
-        Z_pq = basepoint.x * ((self.x - self.z)*(Q.x + Q.z) - (self.x + self.z)*(Q.x - Q.z))**2
+        X_pq = basepoint.z * ((self.x - self.z) * (Q.x + Q.z) + (self.x + self.z) * (Q.x - Q.z)) ** 2
+        Z_pq = basepoint.x * ((self.x - self.z) * (Q.x + Q.z) - (self.x + self.z) * (Q.x - Q.z)) ** 2
 
         return XZPoint(X_pq.elem, Z_pq.elem)
 
@@ -84,10 +77,19 @@ class XZPoint:
         where l is the integer represented by the l leftmost bits of k.
         For details see [1] (p. 102).
         """
-        if type(k) != int:
-            raise ValueError("Can't multiply point by type {}".format(type(k)))
+        r = [XZPoint(1, 1), self.copy()]
+        base = self.affine
 
-        return self
+        for i in range(k.bit_length(), -1, -1):
+            di = (k >> i) & 0x1
+            if di:
+                r[0] = r[0]._add(r[1], base)
+                r[1] = r[1]._double()
+            else:
+                r[1] = r[0]._add(r[1], base)
+                r[0] = r[0]._double()
+
+        return r[0]
 
     def __str__(self):
         return "XZPoint({},{})".format(self.x, self.z)
@@ -130,7 +132,7 @@ class X25519:
 
 def test_X25519():
     G = XZPoint(BASE_X)
-    assert(((ORDER+1) * G).affine == BASE_X)
+    assert (((ORDER + 1) * G).affine == BASE_X)
 
     P = 1337 * G
     Q = 1234 * G
@@ -138,7 +140,7 @@ def test_X25519():
     assert P.affine != Q.affine
     X = 1234 * P
     Y = 1337 * Q
-    assert(X.affine == Y.affine)
+    assert (X.affine == Y.affine)
 
 
 def test_X25519_compute_shared():
@@ -147,7 +149,7 @@ def test_X25519_compute_shared():
 
     shared_key_bob = bob.compute_shared(alice.pk)
     shared_key_alice = alice.compute_shared(bob.pk)
-    assert(shared_key_bob == shared_key_alice)
+    assert (shared_key_bob == shared_key_alice)
 
 
 def test_X25519_exchange():
@@ -156,7 +158,7 @@ def test_X25519_exchange():
 
     shared_key_bob = bob.exchange(alice.pk_bytes)
     shared_key_alice = alice.exchange(bob.pk_bytes)
-    assert(shared_key_bob == shared_key_alice)
+    assert (shared_key_bob == shared_key_alice)
 
 
 def test_Curve25519_format():
