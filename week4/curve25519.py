@@ -48,11 +48,21 @@ class XZPoint:
         :param base: This is the base point, in other words r[1] - r[0], P - Q
         :return: Jacobian point P + Q
         """
-        basepoint = XZPoint(base)
-        X_pq = basepoint.z * ((self.x - self.z) * (Q.x + Q.z) + (self.x + self.z) * (Q.x - Q.z)) ** 2
-        Z_pq = basepoint.x * ((self.x - self.z) * (Q.x + Q.z) - (self.x + self.z) * (Q.x - Q.z)) ** 2
+        xp = self.x
+        xq = Q.x
+        zp = self.z
+        zq = Q.z
+        x_pq = 1 * ((xp - zp) * (xq + zp) + (xp + zp) * (xq - zq)) ** 2
+        z_pq = base * ((xp - zp) * (xq + zp) - (xp + zp) * (xq - zq)) ** 2
 
-        return XZPoint(X_pq.elem, Z_pq.elem)
+        # basepoint = XZPoint(base)
+        # x_pq = basepoint.z * ((self.x - self.z) * (Q.x + Q.z) + (self.x + self.z) * (Q.x - Q.z)) ** 2
+        # z_pq = basepoint.x * ((self.x - self.z) * (Q.x + Q.z) - (self.x + self.z) * (Q.x - Q.z)) ** 2
+
+        # x_pq = ((self.x - self.z) * (Q.x + Q.z) + (self.x + self.z) * (Q.x - Q.z)) ** 2
+        # z_pq = ((self.x - self.z) * (Q.x + Q.z) - (self.x + self.z) * (Q.x - Q.z)) ** 2
+
+        return XZPoint(x_pq.elem, z_pq.elem)
 
     def copy(self):
         return XZPoint(self.x, self.z)
@@ -127,7 +137,7 @@ class X25519:
         pkInt = int.from_bytes(pk, "little")
         pub_point = XZPoint(pkInt)
         secret = self.sk * pub_point
-        return secret.affine.to_bytes((secret.affine.elem.bit_length()+7)//8, "little")
+        return secret.affine.to_bytes((secret.affine.elem.bit_length()+7) // 8, "little")
 
 
 def test_X25519():

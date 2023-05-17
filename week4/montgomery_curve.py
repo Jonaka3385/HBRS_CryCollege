@@ -8,7 +8,6 @@ class MontgommeryCurve(EllipticCurve):
         """
         Montgommery Curve, equivalent to twisted edwards basic_curves.
         """
-        super().__init__()
         self.field = field
         self.A = field(A)
         self.B = field(B)
@@ -29,10 +28,33 @@ class MontgommeryCurve(EllipticCurve):
             raise ValueError("Points not on curve.")
 
         if P == self.poif:
-            return Q
+            x3 = Q.x
+            y3 = Q.y
         elif Q == self.poif:
-            return P
+            x3 = P.x
+            y3 = P.y
+        elif P == Q:
+            x3 = (3 * P.x ** 2 + 2 * P.x * self.A + 1) ** 2
+            x3 *= (4 * P.y ** 2 * self.B) ** -1
+            x3 -= 2 * P.x + self.A
+            y3 = (3 * P.x ** 2 + 2 * P.x * self.A + 1) * (3 * P.x + self.A) * (2 * P.y * self.B) ** -1
+            y3 -= (3 * P.x ** 2 + 2 * P.x * self.A +1) ** 3 * (8 * P.y ** 3 * self.B ** 2) ** -1
+            y3 -= P.y
+        else:
+            x_nom = self.B * (Q.x * P.y - P.x * Q.y) ** 2
+            x_den = P.x * Q.x * (Q.x - P.x) ** 2
 
+            y_nom = (2 * P.x + Q.x + self.A) * (Q.y - P.y)
+            y_den = Q.x - P.x
+
+            y1_nom = self.B * (Q.y - P.y) ** 3
+            y1_den = (Q.x - P.x) ** 3
+
+            x3 = x_nom * x_den ** -1
+            y3 = y_nom * y_den ** -1 - y1_nom * y1_den ** -1
+            y3 -= P.y
+
+        """
         x1, y1 = P.x, P.y
         x2, y2 = Q.x, Q.y
 
@@ -41,6 +63,7 @@ class MontgommeryCurve(EllipticCurve):
 
         x3 = (self.B * u * u - self.A - x1 - x2) / (self.A * self.A - 4)
         y3 = u * x3 + v
+        """
 
         return AffinePoint(self, x3, y3)
 

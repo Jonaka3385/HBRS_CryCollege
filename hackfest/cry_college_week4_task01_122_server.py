@@ -25,6 +25,7 @@ class XORCipher:
 
 if __name__ == "__main__":
     curve = X25519(1234)
+    print(curve.pk_bytes)
     data = send_receive('hackfest.redrocket.club', 24001, curve.pk_bytes)
 
     pub_key = data[0][:32]
