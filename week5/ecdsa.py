@@ -1,8 +1,8 @@
 import pytest
 
-from CryCollege.week2.finitefield import PrimeField
-from CryCollege.week3.elliptic_curve import AffinePoint
-from CryCollege.week3.curves import CurveP256
+from week2.finitefield import PrimeField
+from week3.elliptic_curve import AffinePoint
+from week3.curves import CurveP256
 import hashlib
 import random
 
@@ -25,7 +25,7 @@ class ECDSA:
         blen = message.bit_length()
         qlen = self.qfield.mod.bit_length()
         if blen > qlen:
-            return message >> blen-qlen
+            return message >> blen - qlen
         return message
 
     def public_key(self):
@@ -48,7 +48,7 @@ class ECDSA:
         h = self.qfield(self._bits2int(hashfunction(message).digest()))
 
         if nonce is None:
-            nonce = rng.randint(1, self.qfield.mod-1)
+            nonce = rng.randint(1, self.qfield.mod - 1)
 
         nonce = self.qfield(nonce)
 
@@ -61,7 +61,7 @@ class ECDSA:
         """
         if isinstance(public_key, tuple) and len(public_key) == 2:
             public_key = AffinePoint(self.curve, public_key[0], public_key[1])
-        
+
         raise NotImplementedError("TODO: Implement me plx")
 
 
@@ -69,8 +69,8 @@ class ECDSA:
 @pytest.fixture
 def curve_params():
     # Taken from official test vectors
-    curve = CurveP256[0]
-    generator = CurveP256[1]
+    curve = CurveP256
+    generator = CurveP256.gen
     sk = 0xC9AFA9D845BA75166B5C215767B1D6934E50C3DB36E89B127B8A622B120F6721
     return curve, generator, sk
 
@@ -85,17 +85,21 @@ def test_ecdsa(curve_params):
 
     public_key = ecdsa.public_key()
 
-    assert public_key == (0x60FED4BA255A9D31C961EB74C6356D68C049B8923B61FA6CE669622E60F29FB6, 0x7903FE1008B8BC99A41AE9E95628BC64F2F1B20C2D7E9F5177A3C294D4462299)
+    assert public_key == (0x60FED4BA255A9D31C961EB74C6356D68C049B8923B61FA6CE669622E60F29FB6,
+                          0x7903FE1008B8BC99A41AE9E95628BC64F2F1B20C2D7E9F5177A3C294D4462299)
     signature = ecdsa.sign(b"sample", 0xA6E3C57DD01ABE90086538398355DD4C3B17AA873382B0F24D6129493D8AAD60)
-    assert signature == (0xEFD48B2AACB6A8FD1140DD9CD45E81D69D2C877B56AAF991C34D0EA84EAF3716, 0xF7CB1C942D657C41D436C7A1B6E29F65F3E900DBB9AFF4064DC4AB2F843ACDA8)
+    assert signature == (0xEFD48B2AACB6A8FD1140DD9CD45E81D69D2C877B56AAF991C34D0EA84EAF3716,
+                         0xF7CB1C942D657C41D436C7A1B6E29F65F3E900DBB9AFF4064DC4AB2F843ACDA8)
 
 
 def test_pubkey_verif_withou_sk(curve_params):
     curve, generator, _ = curve_params
     ecdsa = ECDSA(curve, generator)
 
-    signature = (0xEFD48B2AACB6A8FD1140DD9CD45E81D69D2C877B56AAF991C34D0EA84EAF3716, 0xF7CB1C942D657C41D436C7A1B6E29F65F3E900DBB9AFF4064DC4AB2F843ACDA8)
-    pubkey = (0x60FED4BA255A9D31C961EB74C6356D68C049B8923B61FA6CE669622E60F29FB6, 0x7903FE1008B8BC99A41AE9E95628BC64F2F1B20C2D7E9F5177A3C294D4462299)
+    signature = (0xEFD48B2AACB6A8FD1140DD9CD45E81D69D2C877B56AAF991C34D0EA84EAF3716,
+                 0xF7CB1C942D657C41D436C7A1B6E29F65F3E900DBB9AFF4064DC4AB2F843ACDA8)
+    pubkey = (0x60FED4BA255A9D31C961EB74C6356D68C049B8923B61FA6CE669622E60F29FB6,
+              0x7903FE1008B8BC99A41AE9E95628BC64F2F1B20C2D7E9F5177A3C294D4462299)
     assert ecdsa.verify(b"sample", signature, pubkey)
 
 

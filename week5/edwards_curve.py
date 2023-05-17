@@ -1,5 +1,6 @@
-from CryCollege.week3.elliptic_curve import AffinePoint, EllipticCurve
-from CryCollege.week2.finitefield import PrimeField
+from week3.elliptic_curve import AffinePoint, EllipticCurve
+from week2.finitefield import PrimeField
+
 
 class EdwardsCurve(EllipticCurve):
 
@@ -15,8 +16,8 @@ class EdwardsCurve(EllipticCurve):
         self.neutral_element = AffinePoint(self, 0, 1)
 
     def is_on_curve(self, P):
-        x_sq = P.x**2
-        y_sq = P.y**2
+        x_sq = P.x ** 2
+        y_sq = P.y ** 2
         return (self.a * x_sq + y_sq) == (1 + self.d * x_sq * y_sq)
 
     def add(self, P, Q):

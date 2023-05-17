@@ -1,16 +1,16 @@
 import pytest
 
 import hashlib
-from CryCollege.week3.elliptic_curve import AffinePoint
-from CryCollege.week5.edwards_curve import EdwardsCurve
-from CryCollege.week2.finitefield import PrimeField
+from week3.elliptic_curve import AffinePoint
+from week5.edwards_curve import EdwardsCurve
+from week2.finitefield import PrimeField
 
 FIELD = PrimeField(2 ** 255 - 19)
 CURVE = EdwardsCurve(37095705934669439343138083508754565189542113879843219016388785533085940283555, FIELD, -1)
-B = AffinePoint(CURVE, 
-            15112221349535400772501151409588531511454012693041857206046113283949847762202, 
-            46316835694926478169428394003475163141307993866256225615783033603165251855960, 
-            2 ** 252 + 27742317777372353535851937790883648493)
+B = AffinePoint(CURVE,
+                15112221349535400772501151409588531511454012693041857206046113283949847762202,
+                46316835694926478169428394003475163141307993866256225615783033603165251855960,
+                2 ** 252 + 27742317777372353535851937790883648493)
 b = 256
 n = 254
 
@@ -50,10 +50,10 @@ def decode_point(P):
     u = y ** 2 - 1
     v = CURVE.d * y ** 2 + 1
 
-    x = (u * v ** -1) ** ((FIELD.mod+3) * FIELD(8) ** -1)
+    x = (u * v ** -1) ** ((FIELD.mod + 3) * FIELD(8) ** -1)
 
     if v * x ** 2 == u * -1:
-        x = x * FIELD(2) ** ((FIELD.mod-1) * FIELD(4) ** -1).elem
+        x = x * FIELD(2) ** ((FIELD.mod - 1) * FIELD(4) ** -1).elem
     elif v * x ** 2 != u:
         raise ValueError("Point can't be decoded")
 
