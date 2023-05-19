@@ -1,13 +1,14 @@
-import secret
 import ecdsa
 import os
 
 os.chdir("/opt")
 
-key = open("secp256k1-key.pem").read()
+path_priv = "/Users/jonas/Documents/JetBrains_Projects/PyCharm/CryCollege/hackfest/secp256k1-key.pem"
+key = open(path_priv).read()
 sk = ecdsa.SigningKey.from_pem(key)
 
-pubkey = open("pub.pem").read()
+path_pub = "/Users/jonas/Documents/JetBrains_Projects/PyCharm/CryCollege/hackfest/mypubkey.pem"
+pubkey = open(path_pub).read()
 vk = ecdsa.VerifyingKey.from_pem(pubkey)
 
 

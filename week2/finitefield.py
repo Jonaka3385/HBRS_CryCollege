@@ -94,6 +94,9 @@ class PrimeField:
             return False
         return self.mod == other.mod
 
+    def inv(self, nonce):
+        return (1 / nonce) % self.mod
+
 
 class FieldElement:
     def __init__(self, field, elem):

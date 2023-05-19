@@ -1,4 +1,5 @@
 import pytest
+
 from week2.finitefield import PrimeField
 from week3.elliptic_curve import AffinePoint
 from week3.curves import CurveP256
@@ -28,12 +29,19 @@ class ECDSA:
         return message
 
     def public_key(self):
+        """
+        :return: public key
+        """
         if not self.sk:
             raise ValueError("Secret key not set")
         p = self.sk * self.G
         return p.x, p.y
 
     def sign(self, message, nonce=None, hashfunction=hashlib.sha256):
+        """
+        Create a signature for the provided message using the provided hashfunction and nonce.
+        If the nonce is None a random nonce should be created using the secure random number generator rng.
+        """
         if not self.sk:
             raise ValueError("Secret key not set")
 
@@ -44,30 +52,17 @@ class ECDSA:
 
         nonce = self.qfield(nonce)
 
-        while True:
-            P = nonce * self.G
-            r = P.x % self.qfield.mod
-            if r != 0:
-                inv_nonce = self.qfield.inv(nonce)
-                s = (inv_nonce * (h + self.sk * r)) % self.qfield.mod
-                if s != 0:
-                    return r, s
-            nonce = rng.randint(1, self.qfield.mod - 1)
+        raise NotImplementedError("TODO: Implement me plx")
 
     def verify(self, message, signature, public_key, hashfunction=hashlib.sha256):
+        """
+        Verify the provided signature using the provided public key.
+        :return: True if signature is valid, False else
+        """
         if isinstance(public_key, tuple) and len(public_key) == 2:
             public_key = AffinePoint(self.curve, public_key[0], public_key[1])
 
-        r, s = signature
-        h = self.qfield(self._bits2int(hashfunction(message).digest()))
-        w = self.qfield.inv(s)
-        u1 = (h * w) % self.qfield.mod
-        u2 = (r * w) % self.qfield.mod
-        P = u1 * self.G + u2 * public_key
-
-        if P.is_infinite() or P.x % self.qfield.mod != r:
-            return False
-        return True
+        raise NotImplementedError("TODO: Implement me plx")
 
 
 # Tests Start here
