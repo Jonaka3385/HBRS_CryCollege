@@ -1,43 +1,15 @@
-import socketserver
-from cryptography.hazmat.primitives.asymmetric import ed25519
-from cryptography.exceptions import InvalidSignature
-
-try:
-    from secret import FLAG
-except ImportError:
-    # Fake flag for local testing
-    FLAG = "CRY{????????????????}"
-
-CHALLENGE = b"Yes, I did eat the last cookie!"
+from week1.communication import send_receive
+import ecdsa
 
 
-class MyUDPHandler(socketserver.BaseRequestHandler):
+if __name__ == '__main__':
+    msg = 'Yes, I did east the last cookie!'
 
-    def handle(self):
-        data = self.request[0]
-        socket = self.request[1]
+    path_priv = "/Users/jonas/Documents/JetBrains_Projects/PyCharm/CryCollege/hackfest/prime256v1-key.pem"
+    key = open(path_priv).read()
+    sk = ecdsa.SigningKey.from_pem(key)
+    path_pub = "/Users/jonas/Documents/JetBrains_Projects/PyCharm/CryCollege/hackfest/mypubkey.pem"
+    pubkey = open(path_pub).read()
+    vk = ecdsa.VerifyingKey.from_pem(pubkey)
 
-        # First 32 bytes are the public key
-        peer_pubkey = data[:32]
-        peer_signature = data[32:]
-
-        pubkey = ed25519.Ed25519PublicKey.from_public_bytes(peer_pubkey)
-
-        try:
-            pubkey.verify(peer_signature, CHALLENGE)
-            msg = FLAG
-        except InvalidSignature:
-            msg = b"The signature did not verify!"
-
-        # Send message back
-        socket.sendto(msg, self.client_address)
-
-
-class ThreadingUDPServer(socketserver.ThreadingMixIn, socketserver.UDPServer):
-    pass
-
-
-if __name__ == "__main__":
-    HOST, PORT = "0.0.0.0", 21555
-    with ThreadingUDPServer((HOST, PORT), MyUDPHandler) as server:
-        server.serve_forever()
+    send_receive('hackfest.redrocket.club', 21555, '')
