@@ -25,7 +25,7 @@ class EdwardsCurve(EllipticCurve):
         Sum of points P and Q.
         https://en.wikipedia.org/wiki/Edwards_curve#The_group_law
         """
-        raise NotImplementedError("TODO: Implement me plx")
+
 
     def __str__(self):
         return "{}x^2 + y^2 = 1 + {}x^2y^2 mod {}".format(self.a, self.d, self.field.mod)

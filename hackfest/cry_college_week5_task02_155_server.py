@@ -8,7 +8,7 @@ except ImportError:
     # Fake flag for local testing
     FLAG = "CRY{????????????????}"
 
-CHALLENGE = b"Yes, I did east the last cookie!"
+CHALLENGE = b"Yes, I did eat the last cookie!"
 
 
 class MyUDPHandler(socketserver.BaseRequestHandler):
