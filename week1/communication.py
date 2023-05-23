@@ -11,10 +11,10 @@ def send_receive(ip_dst, port_dst, msg, maxsize=1024):
     :return addr: the address you received the data from
     """
 
-    if isinstance(msg, bytes):
-        msg = msg
-    else:
-        msg = msg.encode()
+    # if isinstance(msg, bytes):
+    #     msg = msg
+    # else:
+    #     msg = msg.encode()
 
     print(f'Sending message {msg} to {ip_dst}:{port_dst}')
 
